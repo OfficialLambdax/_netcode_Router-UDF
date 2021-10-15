@@ -53,6 +53,7 @@ Global $__sRouteIdentifier = "test" ; identifier of the destination behind the R
 
 
 _netcode_Startup()
+_netcode_ProxySetConsoleLogging(True)
 
 Local $hProxySocket = _netcode_SetupTCPProxy("0.0.0.0", 1225)
 _netcode_ProxySetMiddleman($hProxySocket, 1, "__netcode_ProxyRouterOnConnection")
