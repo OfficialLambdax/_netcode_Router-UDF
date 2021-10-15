@@ -34,6 +34,7 @@
 
 
 Global $__net_router_arServices[0] ; listeners
+Global Const $__net_router_UDFVersion = "0.1.1"
 
 
 ; specify parent socket if you want to loop just this one
@@ -152,34 +153,56 @@ Func __netcode_RouterLoop(Const $hSocket)
 
 	; query established sockets for data and disconnects
 	Local $arClients = _storageS_Read($hSocket, '_netcode_RouterClients')
-	Local $nArSize = UBound($arClients)
+	Local $nArSize = UBound($arClients), $nBytes = 0
 	if $nArSize = 0 Then Return
 
 	For $i = 0 To $nArSize - 1
 		; incoming to outgoing
-		$sRecvBuffer = __netcode_RecvPackages($arClients[$i][0])
-		if @error Then
+		if Not __netcode_RouterRecvAndSend($arClients[$i][0], $arClients[$i][1]) Then
 			ConsoleWrite("Router Disconnecting @ " & $arClients[$i][0] & " and @ " & $arClients[$i][1] & @CRLF)
 			__netcode_RouterRemoveRouteClient($hSocket, $arClients[$i][0])
 			ContinueLoop
-		EndIf
-		if $sRecvBuffer <> "" Then
-			ConsoleWrite("Router Send from @ " & $arClients[$i][0] & " to @ " & $arClients[$i][1] & " " & Round(StringLen($sRecvBuffer) / 1024, 2) & " KB" & @CRLF)
-			__netcode_TCPSend($arClients[$i][1], StringToBinary($sRecvBuffer))
+		Else
+			$nBytes = @extended
+			if $nBytes > 0 Then ConsoleWrite("Router Send from @ " & $arClients[$i][0] & " to @ " & $arClients[$i][1] & " " & Round($nBytes / 1024, 2) & " KB" & @CRLF)
+
 		EndIf
 
 		; outgoing to incoming
-		$sRecvBuffer = __netcode_RecvPackages($arClients[$i][1])
-		if @error Then
+		If Not __netcode_RouterRecvAndSend($arClients[$i][1], $arClients[$i][0]) Then
 			ConsoleWrite("Router Disconnecting @ " & $arClients[$i][0] & " and @ " & $arClients[$i][1] & @CRLF)
 			__netcode_RouterRemoveRouteClient($hSocket, $arClients[$i][0])
 			ContinueLoop
+		Else
+			$nBytes = @extended
+			if $nBytes > 0 Then ConsoleWrite("Router Send from @ " & $arClients[$i][1] & " to @ " & $arClients[$i][0] & " " & Round($nBytes / 1024, 2) & " KB" & @CRLF)
 		EndIf
-		if $sRecvBuffer <> "" Then
-			ConsoleWrite("Router Send from @ " & $arClients[$i][1] & " to @ " & $arClients[$i][0] & " " & Round(StringLen($sRecvBuffer) / 1024, 2) & " KB" & @CRLF)
-			__netcode_TCPSend($arClients[$i][0], StringToBinary($sRecvBuffer))
-		EndIf
+
 	Next
+EndFunc
+
+Func __netcode_RouterRecvAndSend($hSocket, $hSocketTo)
+;~ 	Local $sPackages = __netcode_RelayRecvPackages($hSocket)
+
+	Local $sPackages = _storageS_Read($hSocket, '_netcode_router_buffer')
+	if $sPackages = "" Then
+		$sPackages = __netcode_RecvPackages($hSocket)
+		if @error Then Return False
+		if $sPackages = '' Then Return True
+
+		_storageS_Overwrite($hSocket, '_netcode_router_buffer', $sPackages)
+	EndIf
+
+	Local $nBytes = __netcode_TCPSend($hSocketTo, StringToBinary($sPackages), False)
+	Local $nError = @error
+	if $nError <> 10035 Then
+		_storageS_Overwrite($hSocket, '_netcode_router_buffer', '')
+		$nError = 0
+	EndIf
+;~ 	if $nError Then MsgBox(0, "", $nError)
+	if $nError Then Return False
+
+	Return SetError(0, $nBytes, True)
 EndFunc
 
 Func __netcode_RouterAddRouteClient(Const $hSocket, Const $hIncomingSocket, Const $hOutgoingSocket)
@@ -190,6 +213,10 @@ Func __netcode_RouterAddRouteClient(Const $hSocket, Const $hIncomingSocket, Cons
 	$arClients[$nArSize][1] = $hOutgoingSocket
 
 	_storageS_Overwrite($hSocket, '_netcode_RouterClients', $arClients)
+
+	; add temp storage vars
+	_storageS_Overwrite($hIncomingSocket, '_netcode_router_buffer', '')
+	_storageS_Overwrite($hOutgoingSocket, '_netcode_router_buffer', '')
 EndFunc
 
 Func __netcode_RouterRemoveRouteClient(Const $hSocket, Const $hIncomingSocket)
@@ -200,6 +227,10 @@ Func __netcode_RouterRemoveRouteClient(Const $hSocket, Const $hIncomingSocket)
 
 		__netcode_TCPCloseSocket($hIncomingSocket)
 		__netcode_TCPCloseSocket($arClients[0][1])
+
+		; tidy temp storage vars
+		_storageS_TidyGroupVars($hIncomingSocket)
+		_storageS_TidyGroupVars($arClients[0][1])
 
 		ReDim $arClients[0][2]
 		_storageS_Overwrite($hSocket, '_netcode_RouterClients', $arClients)
@@ -217,6 +248,10 @@ Func __netcode_RouterRemoveRouteClient(Const $hSocket, Const $hIncomingSocket)
 
 	__netcode_TCPCloseSocket($hIncomingSocket)
 	__netcode_TCPCloseSocket($arClients[$nIndex][1])
+
+	; tidy temp storage vars
+	_storageS_TidyGroupVars($hIncomingSocket)
+	_storageS_TidyGroupVars($arClients[$nIndex][1])
 
 	$arClients[$nIndex][0] = $arClients[$nArSize - 1][0]
 	$arClients[$nIndex][1] = $arClients[$nArSize - 1][1]

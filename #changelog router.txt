@@ -1,0 +1,12 @@
+15.10.2021 (DD/MM/YYYY) 0.1.1
+	Fixes
+		None
+	
+	Changes
+		- The Router now makes better use of non blocking sockets. Until this update each 'send' call was repeated until WSAGetLastError no longer returned 10035. Duo to this a slower connection could slow down all other connections because the router was stuck in this function. This was changed. The router now keeps recieved data in a temporary buffer until the send of it succeeded. The router also only Receives the next data once this buffer is emptied. So the router doesnt accept more data then it can send.
+		
+	Upgrades
+		- Duo to the changes mentioned above the router is better capable to manage a larger amount of connections and data send through them.
+		
+	Remarks
+		- Beaware that the Router makes no use of 'select' yet so tunneling thousands of connections through it can become an issue. Besides that sockets used to 'connect' are yet still blocking. So connection attempts from the router to the set destination will still lag the whole router, especially on very slow or not responding servers. Also note that the codebase from the router differs alot from the codebase of the proxy and the relay. All 3 UDF's work very similiar, however i approached the Router differently to see if i can code it in a better way. Thats was maybe not the case. So an entire Overhaul of the Router might come.
