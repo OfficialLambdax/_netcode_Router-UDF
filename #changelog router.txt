@@ -1,3 +1,8 @@
+16.10.2021 (DD/MM/YYYY) 0.1.1
+	Fixes
+		- Duo to the latest _netcode_Core 0.1.2 update the Router will now no longer randomly disconnect sockets.
+		The issue came from __netcode_TCPRecv() and is now fixed.
+
 15.10.2021 (DD/MM/YYYY) 0.1.1
 	Fixes
 		None
