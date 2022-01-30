@@ -1,3 +1,13 @@
+30.01.2022 (DD/MM/YYYY) 0.2
+
+	SCRIPT BREAKING CHANGES
+	THIS VERSION IS AN ENTIRE OVERHAUL
+	
+	Script now requires _netcode_AddonCore.au3
+	
+	This version is much more performant then any of the recent and now fully utilizes non blocking sockets.
+
+
 16.10.2021 (DD/MM/YYYY) 0.1.1
 	Fixes
 		- Duo to the latest _netcode_Core 0.1.2 update the Router will now no longer randomly disconnect sockets.

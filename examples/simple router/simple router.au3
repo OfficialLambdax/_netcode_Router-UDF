@@ -1,16 +1,18 @@
 #NoTrayIcon
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Version=Beta
-#AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Run_Au3Stripper=y
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
-;~ #AutoIt3Wrapper_Au3stripper_OnError=ForceUse ; not working
-#include "..\..\..\_netcode_Router.au3"
+#include "..\..\_netcode_Router.au3"
 
-_netcode_Startup()
-Local $hSocket = _netcode_RouterStartServer(1226)
-_netcode_RouterAddRoute($hSocket, "127.0.0.1", 8080, "test")
+; startup the UDF
+_netcode_Router_Startup()
 
-While Sleep(10)
-	_netcode_RouterLoop()
+; register a route
+_netcode_Router_RegisterRoute("testroute", "127.0.0.1", 1225)
+
+; create router parent
+Local $hSocket = _netcode_Router_Create("0.0.0.0", 1226)
+
+; loop it
+While True
+	_netcode_Router_Loop($hSocket)
+
+	Sleep(10)
 WEnd
