@@ -1,3 +1,9 @@
+30.01.2022 (DD/MM/YYYY) 0.2.1
+
+	Added
+		- The usage of __netcode_UDFVersionCheck() from the core to check for a version update once a day.
+
+
 30.01.2022 (DD/MM/YYYY) 0.2
 
 	SCRIPT BREAKING CHANGES

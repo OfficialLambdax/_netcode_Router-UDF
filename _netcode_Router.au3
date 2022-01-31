@@ -18,7 +18,10 @@
 
 #ce
 
-Global $__net_Router_sAddonVersion = "0.2"
+Global $__net_Router_sAddonVersion = "0.2.1"
+Global Const $__net_Router_sNetcodeOfficialRepositoryURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF"
+Global Const $__net_Router_sNetcodeOfficialRepositoryChangelogURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF/blob/main/%23changelog%20router.txt"
+Global Const $__net_Router_sNetcodeVersionURL = "https://raw.githubusercontent.com/OfficialLambdax/_netcode-UDF/main/versions/_netcode_Router.version"
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -37,6 +40,8 @@ Func _netcode_Router_Startup()
 
 	Local $arParents = __netcode_Addon_GetSocketList('RouterParents')
 	If IsArray($arParents) Then Return SetError(1, 0, False) ; router already started
+
+	__netcode_UDFVersionCheck($__net_Router_sNetcodeVersionURL, $__net_Router_sNetcodeOfficialRepositoryURL, $__net_Router_sNetcodeOfficialRepositoryChangelogURL, '_netcode_Router', $__net_Router_sAddonVersion)
 
 	__netcode_Addon_CreateSocketList('RouterParents')
 
