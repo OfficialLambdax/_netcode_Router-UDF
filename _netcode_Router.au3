@@ -18,7 +18,7 @@
 
 #ce
 
-Global $__net_Router_sAddonVersion = "0.2.2"
+Global $__net_Router_sAddonVersion = "0.2.3"
 Global Const $__net_Router_sNetcodeOfficialRepositoryURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF"
 Global Const $__net_Router_sNetcodeOfficialRepositoryChangelogURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF/blob/main/%23changelog%20router.txt"
 Global Const $__net_Router_sNetcodeVersionURL = "https://raw.githubusercontent.com/OfficialLambdax/_netcode-UDF/main/versions/_netcode_Router.version"
@@ -173,7 +173,7 @@ Func _netcode_Router_RemoveRoute($sIdentifier)
 	Local $arDestination = __netcode_Addon_GetVar(StringToBinary($sIdentifier), 'Destination')
 	if Not IsArray($arDestination) Then Return SetError(1, 0, False) ; route doesnt exist
 
-	_storageG_TidyGroupVars(StringToBinary($sIdentifier))
+	_storageGO_DestroyGroup(StringToBinary($sIdentifier))
 	Return True
 EndFunc
 
