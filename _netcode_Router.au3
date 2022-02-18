@@ -18,7 +18,7 @@
 
 #ce
 
-Global $__net_Router_sAddonVersion = "0.2.3"
+Global $__net_Router_sAddonVersion = "0.2.3.1"
 Global Const $__net_Router_sNetcodeOfficialRepositoryURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF"
 Global Const $__net_Router_sNetcodeOfficialRepositoryChangelogURL = "https://github.com/OfficialLambdax/_netcode_Router-UDF/blob/main/%23changelog%20router.txt"
 Global Const $__net_Router_sNetcodeVersionURL = "https://raw.githubusercontent.com/OfficialLambdax/_netcode-UDF/main/versions/_netcode_Router.version"
@@ -111,6 +111,8 @@ Func _netcode_Router_RegisterRoute($sIdentifier, $sRouteToIP, $nRouteToPort)
 
 	; check identifier len
 	If StringLen($sIdentifier) > 99 Then Return SetError(1, 0, False) ; id to long
+
+	_storageGO_CreateGroup(StringToBinary($sIdentifier))
 
 	; create route
 	Local $arDestination[2] = [$sRouteToIP,$nRouteToPort]
